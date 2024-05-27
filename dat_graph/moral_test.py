@@ -1,6 +1,7 @@
 import numpy as np
 from matplotlib import pyplot as plt
 import torch
+from tqdm import tqdm
 from .parallel_linear_layer import ParallelNet
 
 class MoralTester():
@@ -48,8 +49,7 @@ class MoralTester():
         sparse = self.regressor.l1_mat(p=p)
         return sparse
 
-    def train(self, train_dataloader, lr, n_steps,
-              sparsity, print_interval=1000,):
+    def train(self, train_dataloader, lr, n_steps, sparsity):
         losses = []
         optimizer = torch.optim.Adam(self.regressor.parameters(), lr=lr)
         def get_loss(dataloader):
@@ -74,15 +74,14 @@ class MoralTester():
             l1 = self.regressor.l1_mat().sum(axis=-1)
             return mean_err, sparsity * mean_err.detach() * l1
 
-        for step in range(n_steps):
+        for step in (pbar := tqdm(range(n_steps))):
             mean_err, l1 = get_loss(train_dataloader)
             loss = (mean_err + l1).sum()
             # backprop and update
             optimizer.zero_grad(set_to_none=True)
             loss.backward()
             optimizer.step()
-            if (step-1) % print_interval == 0:
-                print("step:", step, '/', n_steps, ", mean error:", mean_err.sum().detach().cpu().numpy())
+            pbar.set_description(f"Mean error: {mean_err.sum().detach().cpu().numpy().round(2)}")
             losses.append(loss.sum().detach().cpu())
 
         # plot loss curve

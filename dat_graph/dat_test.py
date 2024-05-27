@@ -2,6 +2,7 @@ import numpy as np
 from matplotlib import pyplot as plt
 import torch
 import torch.nn as nn
+from tqdm import tqdm
 from .parallel_linear_layer import ParallelNet
 
 
@@ -145,8 +146,7 @@ class DATTester:
     def get_test_edges_mbs(self):
         return self.test_edges, self.moral_map
 
-    def train(self, train_dataloader, lr, n_steps,
-              print_interval=1000):
+    def train(self, train_dataloader, lr, n_steps):
         losses_1 = np.empty([n_steps, self.n_test_edges])
         losses_2 = np.empty([n_steps, self.n_test_edges])
         optimizer_psi = torch.optim.Adam(self.add_noise.parameters(), lr=lr,
@@ -180,8 +180,9 @@ class DATTester:
             loss_2 = (error_2**2).mean(axis=0).sum(axis=-1)
             return loss_1, loss_2
             
-        for step in range(n_steps):
+        for step in (pbar := tqdm(range(n_steps))):
             loss_1, loss_2 = get_loss(train_dataloader, step)
+            loss_1_loss_2 = loss_1.sum() + loss_2.sum()
             # backprop and update
             if step % 2 == 0:
                 # update psis
@@ -189,16 +190,13 @@ class DATTester:
                 optimizer_psi.zero_grad(set_to_none=True)
                 loss_3.backward()
                 optimizer_psi.step()
-                if step % print_interval == 0:
-                    print("step:", step, '/', n_steps, ", variance explained:", loss_1.sum().detach().cpu().numpy())
             else:
                 # update regressors
-                loss_1_loss_2 = loss_1.sum() + loss_2.sum()
                 optimizer_nn.zero_grad(set_to_none=True)
                 loss_1_loss_2.backward()
                 optimizer_nn.step()
-                if (step-1) % print_interval == 0:
-                    print("step:", step, '/', n_steps, ", prediction error:", loss_1_loss_2.detach().cpu().numpy())
+            pbar.set_description(f"Var. expl.: {loss_1.sum().detach().cpu().numpy().round(2)}"
+                                 +f"Pred. error: {loss_1_loss_2.detach().cpu().numpy().round(2)}")
             # log edges
             losses_1[step] = loss_1.detach().cpu().numpy()
             losses_2[step] = loss_2.detach().cpu().numpy()
@@ -223,9 +221,8 @@ class DATTester:
         total_loss_1 = 0.
         total_loss_2 = 0.
         with torch.no_grad():
-            for step in range(n_steps):
-                if step % 1000 == 0:
-                    print('step:', step)
+            print("Estimating variance explained.")
+            for step in tqdm(range(n_steps)):
                 # format data
                 x, intervention_mask, _ = next(dataloader)
                 x = x.to(self.device, non_blocking=True).to(self.dtype)

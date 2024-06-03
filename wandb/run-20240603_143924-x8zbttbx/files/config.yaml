@@ -1,0 +1,63 @@
+wandb_version: 1
+
+batch_size:
+  desc: null
+  value: 256
+stage1_kwargs:
+  desc: null
+  value:
+    learning_rate: 0.002
+    batch_size: 256
+    n_epochs: 0
+    alpha: 0.01
+    beta: 0.0002
+    gamma_increment: 0
+    n_epochs_check: 100
+    mask_threshold: -1.0
+stage2_kwargs:
+  desc: null
+  value:
+    learning_rate: 0.001
+    batch_size: 256
+    n_epochs: 2000
+    alpha: 0.0005
+    beta: 0.005
+    gamma_increment: 0.005
+    gamma_schedule: linear
+    freeze_gamma_at_dag: true
+    freeze_gamma_threshold: 0.01
+    threshold: 0.1
+    n_epochs_check: 100
+    dag_penalty_flavor: power_iteration
+model_kwargs:
+  desc: null
+  value:
+    num_layers: 1
+    dim_hidden: 10
+    power_iteration_n_steps: 15
+number_of_samples:
+  desc: null
+  value: 8000
+_wandb:
+  desc: null
+  value:
+    python_version: 3.10.0
+    cli_version: 0.15.12
+    framework: torch
+    is_jupyter_run: true
+    is_kaggle_kernel: false
+    start_time: 1717439964.306276
+    t:
+      1:
+      - 1
+      - 55
+      3:
+      - 13
+      - 16
+      - 23
+      4: 3.10.0
+      5: 0.15.12
+      8:
+      - 1
+      - 5
+      13: linux-x86_64

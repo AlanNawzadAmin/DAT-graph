@@ -1,4 +1,4 @@
-# Causal discovery with a Differentiable Adjacency Test (DAT)
+# Causal discovery with a Differentiable Adjacency Test
 
 <p align="center">
 <img width="500" alt="image" src="https://github.com/AlanNawzadAmin/DAT-graph/assets/70599003/eefaee93-4d36-47cd-ae49-245a70225083">

@@ -1,4 +1,8 @@
-# DAT-Graph
+# Causal discovery with a Differentiable Adjacency Test (DAT)
+
+<p align="center">
+<img width="500" alt="image" src="https://github.com/AlanNawzadAmin/DAT-graph/assets/70599003/eefaee93-4d36-47cd-ae49-245a70225083">
+</p>
 
 The repo includes code implementing DAT and DAT graph from [Scalable and Flexible Causal Discovery with an Efficient Test for Adjacency](https://arxiv.org/abs/2406.09177) appearing in ICML 2024.
 Authors are [Alan Nawzad Amin](https://alannawzadamin.github.io/) and [Andrew Gordon Wilson](https://cims.nyu.edu/~andrewgw/).
